@@ -1,7 +1,60 @@
+#root {
+  padding-top: 1.5rem;
+}
+
 h1 {
   text-align: center;
 }
 
+h2 {
+  text-align: center;
+  font-size: 1.4rem;
+}
+
 p {
   text-align: justify;
+}
+
+button {
+  cursor: pointer;
+}
+
+#goals-list {
+  margin-bottom: 2rem;
+}
+
+#completed-list .complete-btn {
+  display: none;
+}
+
+.form-inline {
+  margin-bottom: 2rem;
+}
+
+.form-inline input, .form-inline button {
+  flex-grow: 1;
+}
+
+input {
+  margin-right: 0.2rem;
+}
+
+.list-group-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.goal-description {
+  flex-grow: 1;
+}
+
+.delete-btn {
+  border: 0;
+  background: none;
+}
+
+.complete-btn {
+  margin: auto 2rem auto 0;
+  height: 2.5rem;
+  border-radius: 1rem;
 }
