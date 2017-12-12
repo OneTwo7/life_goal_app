@@ -2,7 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../actions';
-import moment from 'moment';
+import GoalForm from './GoalForm';
+import GoalsList from './GoalsList';
+import GoalListItem from './GoalListItem';
 
 class App extends React.Component {
   constructor (props) {
@@ -14,7 +16,7 @@ class App extends React.Component {
 
     this.onInputChange = this.onInputChange.bind(this);
     this.onButtonClick = this.onButtonClick.bind(this);
-    this.renderGoal = this.renderGoal.bind(this);
+    this.renderGoals = this.renderGoals.bind(this);
     this.completeGoal = this.completeGoal.bind(this);
     this.deleteGoal = this.deleteGoal.bind(this);
   }
@@ -45,27 +47,18 @@ class App extends React.Component {
     this.props.actions.deleteGoal(id);
   }
 
-  renderGoal (goal) {
-    return (
-      <li key={goal.id} id={goal.id} className="list-group-item">
-        <div className="goal-description">
-          <div>{goal.text}</div>
-          <div>{moment(goal.date).format('MMM Do YYYY')}</div>
-        </div>
-        <button
-          onClick={this.completeGoal}
-          className="btn btn-success complete-btn"
-        >
-          Complete
-        </button>
-        <button
-          onClick={this.deleteGoal}
-          className="delete-btn"
-        >
-          &#x2715;
-        </button>
-      </li>
-    );
+  renderGoals (goals, completed) {
+    return goals.map(goal => {
+      return (
+        <GoalListItem
+          key={goal.id}
+          goal={goal}
+          completed={completed}
+          completeGoal={this.completeGoal}
+          deleteGoal={this.deleteGoal}
+        />
+      );
+    });
   }
 
   getGoalId (element) {
@@ -73,45 +66,22 @@ class App extends React.Component {
   }
 
   render () {
-    const { current, past } = this.props;
+    const { current, past, currentProps, pastProps } = this.props;
+    currentProps.renderGoals = this.renderGoals;
+    pastProps.renderGoals = this.renderGoals;
 
     return (
       <div className="container">
         <div className="row">
           <div className="col-md-6 offset-md-3">
             <h1>Life Goal App</h1>
-            <form className="form-inline">
-              <input
-                type="text"
-                value={this.state.text}
-                onChange={this.onInputChange}
-                name="text"
-                className="form-control"
-              />
-              <button
-                type="button"
-                onClick={this.onButtonClick}
-                className="btn btn-primary"
-              >
-                Add
-              </button>
-            </form>
-            <div id="goals-list">
-              <h2>Current Goals</h2>
-              <ul className="list-group">
-                {
-                  current.map(this.renderGoal)
-                }
-              </ul>
-            </div>
-            <div id="completed-list">
-              <h2>Completed</h2>
-              <ul className="list-group">
-                {
-                  past.map(this.renderGoal)
-                }
-              </ul>
-            </div>
+            <GoalForm
+              text={this.state.text}
+              onChange={this.onInputChange}
+              onClick={this.onButtonClick}
+            />
+            {current.length > 0 && <GoalsList {...currentProps} />}
+            {past.length > 0 && <GoalsList {...pastProps} />}
           </div>
         </div>
       </div>
@@ -123,11 +93,25 @@ const mapStateToProps = (state) => {
   const goals = state;
   const current = goals.filter(goal => !goal.completed);
   const past = goals.filter(goal => goal.completed);
+  const currentProps = {
+    goals: current,
+    completed: false,
+    id: 'goals-list',
+    header: 'Current Goals'
+  };
+  const pastProps = {
+    goals: past,
+    completed: true,
+    id: 'completed-list',
+    header: 'Completed'
+  };
 
   return {
     goals,
     current,
-    past
+    past,
+    currentProps,
+    pastProps
   };
 };
 
