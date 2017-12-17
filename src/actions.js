@@ -27,3 +27,9 @@ export const deleteGoal = (id) => {
     id
   };
 };
+
+export const clearGoals = () => {
+  return {
+    type: types.CLEAR_GOALS
+  };
+};

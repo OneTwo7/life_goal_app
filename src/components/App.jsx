@@ -19,6 +19,7 @@ class App extends React.Component {
     this.renderGoals = this.renderGoals.bind(this);
     this.completeGoal = this.completeGoal.bind(this);
     this.deleteGoal = this.deleteGoal.bind(this);
+    this.clearGoals = this.clearGoals.bind(this);
   }
 
   onInputChange (event) {
@@ -45,6 +46,10 @@ class App extends React.Component {
   deleteGoal (event) {
     const id = this.getGoalId(event.target);
     this.props.actions.deleteGoal(id);
+  }
+
+  clearGoals () {
+    this.props.actions.clearGoals();
   }
 
   renderGoals (goals, completed) {
@@ -82,6 +87,14 @@ class App extends React.Component {
             />
             {current.length > 0 && <GoalsList {...currentProps} />}
             {past.length > 0 && <GoalsList {...pastProps} />}
+            <div id="bottom-div">
+              <button
+                className="btn btn-danger btn-large"
+                onClick={this.clearGoals}
+              >
+                Clear Goals
+              </button>
+            </div>
           </div>
         </div>
       </div>

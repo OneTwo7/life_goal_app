@@ -58,3 +58,8 @@ input {
   height: 2.5rem;
   border-radius: 1rem;
 }
+
+#bottom-div {
+  margin-top: 1rem;
+  text-align: center;
+}

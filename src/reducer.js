@@ -1,13 +1,13 @@
 import * as types from './constants';
-import { bake_cookie, read_cookie } from 'sfcookies';
+import * as storage from './localStorage';
 
 const goalReducer = (state = [], action) => {
-  let goals = read_cookie('goals');
+  let goals = storage.get('goals');
 
   switch (action.type) {
     case types.CREATE_GOAL:
       goals = [...goals, Object.assign({}, action.goal)];
-      bake_cookie('goals', goals);
+      storage.set('goals', goals);
       return goals;
     case types.COMPLETE_GOAL:
       goals = goals.map(goal => {
@@ -17,12 +17,15 @@ const goalReducer = (state = [], action) => {
         }
         return goal;
       });
-      bake_cookie('goals', goals);
+      storage.set('goals', goals);
       return goals;
     case types.DELETE_GOAL:
       goals = goals.filter(goal => goal.id !== action.id);
-      bake_cookie('goals', goals);
+      storage.set('goals', goals);
       return goals;
+    case types.CLEAR_GOALS:
+      storage.remove('goals');
+      return [];
     default:
       return goals;
   }
