@@ -1,6 +1,6 @@
 import React from 'react';
 
-const GoalForm = ({ text, onChange, onClick }) => (
+const Form = ({ text, onChange, onClick }) => (
   <form className="form-inline">
     <input
       type="text"
@@ -19,4 +19,4 @@ const GoalForm = ({ text, onChange, onClick }) => (
   </form>
 );
 
-export default GoalForm;
+export default Form;

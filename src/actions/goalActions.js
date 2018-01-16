@@ -1,4 +1,4 @@
-import * as types from './constants';
+import * as types from '../constants';
 
 export const createGoal = (goal) => {
   goal.id = Math.random();
