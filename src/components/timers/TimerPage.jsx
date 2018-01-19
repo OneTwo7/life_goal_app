@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from '../../actions/timerActions';
+import * as timerActions from '../../actions/timerActions';
+import * as recordActions from '../../actions/recordActions';
 import Form from '../common/Form';
 import initialState from '../../initialState';
 
@@ -9,18 +10,19 @@ class TimerPage extends React.Component {
   constructor (props) {
     super(props);
 
-    const date = new Date();
-    const month = date.getMonth();
-    const day = date.getDate();
+    const currentTime = new Date();
+    const month = currentTime.getMonth();
+    const date = currentTime.getDate();
 
     this.state = {
       text: '',
-      time: date,
+      time: currentTime,
       days: props.days.slice(0, props.months[month].length),
       currentMonth: month,
-      currentDay: day,
+      currentDate: date,
+      durations: {},
       month,
-      day
+      date
     }
 
     this.onInputChange = this.onInputChange.bind(this);
@@ -28,17 +30,26 @@ class TimerPage extends React.Component {
     this.deleteTimer = this.deleteTimer.bind(this);
     this.setTimer = this.setTimer.bind(this);
     this.selectMonth = this.selectMonth.bind(this);
-    this.selectDay = this.selectDay.bind(this);
+    this.selectDate = this.selectDate.bind(this);
+    this.setRecord = this.setRecord.bind(this);
+    this.eraseRecords = this.eraseRecords.bind(this);
   }
 
   componentDidMount () {
     this.interval = setInterval(() => {
       this.setState({ time: new Date() })
     }, 1000);
+    this.setDurations(this.state.month, this.state.date, this.props.timers, this.props.records);
   }
 
   componentWillUnmount () {
     clearInterval(this.interval);
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.timers !== this.props.timers) {
+      this.setDurations(this.state.month, this.state.date, this.props.timers, nextProps.records);
+    }
   }
 
   getDate () {
@@ -47,6 +58,9 @@ class TimerPage extends React.Component {
   }
 
   formatTime (time) {
+    if (isNaN(time)) {
+      return '00:00:00';
+    }
     const seconds = Math.floor(time/1000%60);
     const minutes = Math.floor(time/1000/60%60);
     const hours = Math.floor(time/1000/60/60);
@@ -82,10 +96,12 @@ class TimerPage extends React.Component {
     const element = event.target;
     const id = this.getTimerId(element);
     const text = element.innerHTML;
+
     if (text === 'Start') {
       this.props.actions.startTimer(id, this.state.time);
     } else {
       this.props.actions.stopTimer(id, this.state.time);
+      this.setRecord(id);
     }
   }
 
@@ -96,17 +112,59 @@ class TimerPage extends React.Component {
   selectMonth (event) {
     const month = parseInt(event.target.id.slice(6), 10);
     const days = this.props.days.slice(0, this.props.months[month].length);
-    const day = month === this.state.currentMonth ? this.state.currentDay : 1;
-    this.setState({ month, days, day });
+    const date = month === this.state.currentMonth ? this.state.currentDate : 1;
+    this.setState({ month, days });
+    this.setDate(date);
   }
 
-  selectDay (event) {
-    const day = parseInt(event.target.id.slice(4), 10);
-    this.setState({ day });
+  selectDate (event) {
+    const date = parseInt(event.target.id.slice(4), 10);
+    this.setDate(date);
+  }
+
+  setDate (date) {
+    this.setState({ date });
+    this.setDurations(this.state.month, date, this.props.timers, this.props.records);
+  }
+
+  setRecord (timerId) {
+    let record = null;
+    const { records } = this.props;
+
+    if (records[this.state.month]) {
+      if (records[this.state.month][this.state.date]) {
+        if (records[this.state.month][this.state.date][timerId]) {
+          record = records[this.state.month][this.state.date][timerId];
+        }
+      }
+    }
+
+    if (record) {
+      this.props.actions.updateRecord(record, this.state.time);
+    } else {
+      this.props.actions.createRecord({ timerId }, this.state.time);
+    }
+  }
+
+  eraseRecords () {
+    this.props.actions.eraseRecords();
+  }
+
+  setDurations (month, date, timers, records) {
+    let durations = {};
+    timers.forEach(timer => {
+      if (records[month] && records[month][date] && records[month][date][timer.id]) {
+        durations[timer.id] = records[month][date][timer.id].duration;
+      } else {
+        durations[timer.id] = 0;
+      }
+    });
+    this.setState({ durations });
   }
 
   render () {
     const { timers, months } = this.props;
+    const durations = this.state.durations;
 
     return (
       <div className="row">
@@ -132,9 +190,9 @@ class TimerPage extends React.Component {
                 <button
                   id={'day_' + day}
                   key={day}
-                  className={day === this.state.day ? 'day active' : 'day'}
+                  className={day === this.state.date ? 'day active' : 'day'}
                   type="button"
-                  onClick={this.selectDay}
+                  onClick={this.selectDate}
                 >
                   {day}
                 </button>
@@ -153,12 +211,12 @@ class TimerPage extends React.Component {
                 {
                   timer.running &&
                   <span>
-                    {this.formatTime(timer.duration + (Date.parse(this.state.time) - Date.parse(timer.start)))}
+                    {this.formatTime(durations[timer.id] + (Date.parse(this.state.time) - Date.parse(timer.start)))}
                   </span>
                 }
                 {
                   !timer.running &&
-                  <span>{this.formatTime(timer.duration)}</span>
+                  <span>{this.formatTime(durations[timer.id])}</span>
                 }
                 <button onClick={this.setTimer} className="btn">
                   {timer.running ? 'Stop' : 'Start'}
@@ -169,6 +227,13 @@ class TimerPage extends React.Component {
               </div>
             ))
           }
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={this.eraseRecords}
+          >
+            Erase records
+          </button>
         </div>
       </div>
     );
@@ -177,20 +242,22 @@ class TimerPage extends React.Component {
 
 const mapStateToProps = (state) => {
   const months = initialState.months;
-  const timers = state.timers;
   let days = [];
   for (let i = 0; i <= 30; i++) {
     days[i] = i + 1;
   }
 
   return {
+    timers: state.timers,
+    records: state.records,
     months,
-    timers,
     days
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
+  const actions = Object.assign({}, timerActions, recordActions);
+
   return {
     actions: bindActionCreators(actions, dispatch)
   };

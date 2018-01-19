@@ -24,7 +24,6 @@ const timerReducer = (state = [], action) => {
       timers = state.map(timer => {
         if (timer.id === action.id) {
           timer.stop = action.time;
-          timer.duration += Date.parse(timer.stop) - Date.parse(timer.start);
           timer.running = false;
         }
         return timer;
