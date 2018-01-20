@@ -113,11 +113,24 @@ input {
 .timer {
   margin: 1rem 0;
   display: flex;
-  justify-content: space-between;
 }
 
-.timer span:first-child {
-  width: 15%;
+.timer-info {
+  width: 50%;
+}
+
+.timer-info span {
+  display: inline-block;
+  width: 50%;
+}
+
+.timer-btns {
+  width: 50%;
+  text-align: right;
+}
+
+.timer-btns button {
+  margin-left: 1rem;
 }
 
 .months {

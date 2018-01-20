@@ -90,7 +90,7 @@ class TimerPage extends React.Component {
 
   setTimer (event) {
     const element = event.target;
-    const id = this.getTimerId(element);
+    const id = this.getTimerId(element.parentElement);
     const text = element.innerHTML;
 
     if (text === 'Start') {
@@ -182,28 +182,36 @@ class TimerPage extends React.Component {
           {
             timers.map(timer => (
               <div key={timer.id} id={timer.id} className="timer">
-                <span>{timer.text}</span>
-                {
-                  timer.running &&
-                  <span>
-                    {this.formatTime(records[this.state.month][this.state.date][timer.id].duration + Date.parse(this.state.time) - Date.parse(timer.start))}
-                  </span>
-                }
-                {
-                  !timer.running && (
-                    records[this.state.month] &&
-                    records[this.state.month][this.state.date] &&
-                    records[this.state.month][this.state.date][timer.id] ?
-                    <span>{this.formatTime(records[this.state.month][this.state.date][timer.id].duration)}</span> :
-                    <span>{this.formatTime(0)}</span>
-                  )
-                }
-                <button onClick={this.setTimer} className="btn">
-                  {timer.running ? 'Stop' : 'Start'}
-                </button>
-                <button onClick={this.deleteTimer} className="btn">
-                  delete
-                </button>
+                <div className="timer-info">
+                  <span>{timer.text}</span>
+                  {
+                    timer.running &&
+                    <span>
+                      {this.formatTime(records[this.state.month][this.state.date][timer.id].duration + Date.parse(this.state.time) - Date.parse(timer.start))}
+                    </span>
+                  }
+                  {
+                    !timer.running && (
+                      records[this.state.month] &&
+                      records[this.state.month][this.state.date] &&
+                      records[this.state.month][this.state.date][timer.id] ?
+                      <span>{this.formatTime(records[this.state.month][this.state.date][timer.id].duration)}</span> :
+                      <span>{this.formatTime(0)}</span>
+                    )
+                  }
+                </div>
+                <div className="timer-btns">
+                  {
+                    this.state.currentMonth === this.state.month &&
+                    this.state.currentDate === this.state.date &&
+                    <button onClick={this.setTimer} className="btn">
+                      {timer.running ? 'Stop' : 'Start'}
+                    </button>
+                  }
+                  <button onClick={this.deleteTimer} className="btn">
+                    delete
+                  </button>
+                </div>
               </div>
             ))
           }
@@ -226,7 +234,6 @@ const mapStateToProps = (state) => {
   for (let i = 0; i <= 30; i++) {
     days[i] = i + 1;
   }
-  console.log('records', state.records);
 
   return {
     timers: state.timers,
