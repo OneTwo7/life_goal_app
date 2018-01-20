@@ -5,6 +5,9 @@ import * as timerActions from '../../actions/timerActions';
 import * as recordActions from '../../actions/recordActions';
 import Form from '../common/Form';
 import initialState from '../../initialState';
+import Months from './Months';
+import Days from './Days';
+import TimersList from './TimersList';
 
 class TimerPage extends React.Component {
   constructor (props) {
@@ -24,6 +27,7 @@ class TimerPage extends React.Component {
       date
     }
 
+    this.formatTime = this.formatTime.bind(this);
     this.onInputChange = this.onInputChange.bind(this);
     this.onButtonClick = this.onButtonClick.bind(this);
     this.deleteTimer = this.deleteTimer.bind(this);
@@ -35,6 +39,8 @@ class TimerPage extends React.Component {
     this.eraseRecords = this.eraseRecords.bind(this);
   }
 
+  /* Lifecycle Methods */
+
   componentDidMount () {
     this.interval = setInterval(() => {
       this.setState({ time: new Date() })
@@ -45,10 +51,7 @@ class TimerPage extends React.Component {
     clearInterval(this.interval);
   }
 
-  getDate () {
-    const date = new Date();
-    return date.getTime();
-  }
+  /* Time Format Methods */
 
   formatTime (time) {
     if (isNaN(time)) {
@@ -67,6 +70,22 @@ class TimerPage extends React.Component {
     return num < 10 ? '0' + num : num;
   }
 
+  /* Selecting Date Methods */
+
+  selectMonth (event) {
+    const month = parseInt(event.target.id.slice(6), 10);
+    const days = this.props.days.slice(0, this.props.months[month].length);
+    const date = month === this.state.currentMonth ? this.state.currentDate : 1;
+    this.setState({ month, days, date });
+  }
+
+  selectDate (event) {
+    const date = parseInt(event.target.id.slice(4), 10);
+    this.setState({ date });
+  }
+
+  /* Form Methods */
+
   onInputChange (event) {
     this.setState({ text: event.target.value });
   }
@@ -83,10 +102,7 @@ class TimerPage extends React.Component {
     this.setState({ text: '' });
   }
 
-  deleteTimer (event) {
-    const id = this.getTimerId(event.target);
-    this.props.actions.deleteTimer(id);
-  }
+  /* Timer Methods */
 
   setTimer (event) {
     const element = event.target;
@@ -102,21 +118,16 @@ class TimerPage extends React.Component {
     }
   }
 
+  deleteTimer (event) {
+    const id = this.getTimerId(event.target);
+    this.props.actions.deleteTimer(id);
+  }
+
   getTimerId (element) {
     return parseFloat(element.parentElement.id);
   }
 
-  selectMonth (event) {
-    const month = parseInt(event.target.id.slice(6), 10);
-    const days = this.props.days.slice(0, this.props.months[month].length);
-    const date = month === this.state.currentMonth ? this.state.currentDate : 1;
-    this.setState({ month, days, date });
-  }
-
-  selectDate (event) {
-    const date = parseInt(event.target.id.slice(4), 10);
-    this.setState({ date });
-  }
+  /* Record Methods */
 
   createRecord (timerId) {
     const { records } = this.props;
@@ -138,90 +149,50 @@ class TimerPage extends React.Component {
     this.props.actions.eraseRecords();
   }
 
+  /* Render */
+
   render () {
     const { timers, records, months } = this.props;
 
     return (
       <div className="row">
         <div className="col-md-6 offset-md-3">
-          <section className="months">
-            {
-              months.map((month, idx) => (
-                <button
-                  id={'month_' + idx}
-                  className={idx === this.state.month ? 'month active' : 'month'}
-                  key={idx}
-                  type="button"
-                  onClick={this.selectMonth}
-                >
-                  {month.name}
-                </button>
-              ))
-            }
-          </section>
-          <section className="days">
-            {
-              this.state.days.map(day => (
-                <button
-                  id={'day_' + day}
-                  key={day}
-                  className={day === this.state.date ? 'day active' : 'day'}
-                  type="button"
-                  onClick={this.selectDate}
-                >
-                  {day}
-                </button>
-              ))
-            }
-          </section>
+          <Months
+            months={months}
+            selectedMonth={this.state.month}
+            selectMonth={this.selectMonth}
+          />
+          <Days
+            days={this.state.days}
+            selectedDate={this.state.date}
+            selectDate={this.selectDate}
+          />
           <Form
             text={this.state.text}
             onChange={this.onInputChange}
             onClick={this.onButtonClick}
           />
-          {
-            timers.map(timer => (
-              <div key={timer.id} id={timer.id} className="timer">
-                <div className="timer-info">
-                  <span>{timer.text}</span>
-                  {
-                    timer.running &&
-                    <span>
-                      {this.formatTime(records[this.state.month][this.state.date][timer.id].duration + Date.parse(this.state.time) - Date.parse(timer.start))}
-                    </span>
-                  }
-                  {
-                    !timer.running && (
-                      records[this.state.month] &&
-                      records[this.state.month][this.state.date] &&
-                      records[this.state.month][this.state.date][timer.id] ?
-                      <span>{this.formatTime(records[this.state.month][this.state.date][timer.id].duration)}</span> :
-                      <span>{this.formatTime(0)}</span>
-                    )
-                  }
-                </div>
-                <div className="timer-btns">
-                  {
-                    this.state.currentMonth === this.state.month &&
-                    this.state.currentDate === this.state.date &&
-                    <button onClick={this.setTimer} className="btn">
-                      {timer.running ? 'Stop' : 'Start'}
-                    </button>
-                  }
-                  <button onClick={this.deleteTimer} className="btn">
-                    delete
-                  </button>
-                </div>
-              </div>
-            ))
-          }
-          <button
-            type="button"
-            className="btn btn-danger"
-            onClick={this.eraseRecords}
-          >
-            Erase records
-          </button>
+          <TimersList
+            timers={timers}
+            records={records}
+            month={this.state.month}
+            date={this.state.date}
+            time={this.state.time}
+            currentMonth={this.state.currentMonth}
+            currentDate={this.state.currentDate}
+            formatTime={this.formatTime}
+            setTimer={this.setTimer}
+            deleteTimer={this.deleteTimer}
+          />
+          <div id="bottom-div">
+            <button
+              type="button"
+              className="btn btn-danger btn-large"
+              onClick={this.eraseRecords}
+            >
+              Clear records
+            </button>
+          </div>
         </div>
       </div>
     );
