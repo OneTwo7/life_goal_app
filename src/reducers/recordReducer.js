@@ -5,16 +5,9 @@ const recordReducer = (state = [], action) => {
   let records = null;
   let record = null;
   state = storage.get('records');
-  const timers = storage.get('timers');
-  const length = timers.length;
 
   if (action.record) {
     record = Object.assign({}, action.record);
-    for (let i = 0; i < length; i++) {
-      if (parseFloat(timers[i].id) === record.timerId) {
-        record.duration += Date.parse(timers[i].stop) - Date.parse(timers[i].start);
-      }
-    }
   }
 
   switch (action.type) {
@@ -26,10 +19,18 @@ const recordReducer = (state = [], action) => {
       if (!records[record.month][record.date]) {
         records[record.month][record.date] = {};
       }
+      record.duration = 0;
       records[record.month][record.date][record.timerId] = record;
       storage.set('records', records);
       return records;
     case types.UPDATE_RECORD:
+      const timers = storage.get('timers');
+      const length = timers.length;
+      for (let i = 0; i < length; i++) {
+        if (parseFloat(timers[i].id) === record.timerId) {
+          record.duration += Date.parse(timers[i].stop) - Date.parse(timers[i].start);
+        }
+      }
       records = Object.assign({}, state);
       records[record.month][record.date][record.timerId] = record;
       storage.set('records', records);
