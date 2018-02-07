@@ -12,7 +12,7 @@ const App = () => (
     <Route path="/timers" component={TimerPage} />
     <hr />
     <footer>
-      <p>Ivan Antonov 2017</p>
+      <p>&copy; 2018 Ivan Antonov</p>
     </footer>
   </div>
 );

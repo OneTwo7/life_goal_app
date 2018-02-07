@@ -12,32 +12,32 @@ const TimersList = ({
   setTimer,
   deleteTimer
 }) => (
-  <section id="timers">
+  <section id="timers" className="list-group">
     {
       timers.map(timer => (
-        <div key={timer.id} id={timer.id} className="timer">
+        <div key={timer.id} id={timer.id} className="timer list-group-item">
           <div className="timer-info">
-            <span>{timer.text}</span>
+            <div>{timer.text}</div>
             {
               timer.running &&
-              <span>
+              <div>
                 {
                   formatTime(
                     records[month][date][timer.id].duration +
                     Date.parse(time) - Date.parse(timer.start)
                   )
                 }
-              </span>
+              </div>
             }
             {
               !timer.running && (
                 records[month] &&
                 records[month][date] &&
                 records[month][date][timer.id] ?
-                <span>
+                <div>
                   {formatTime(records[month][date][timer.id].duration)}
-                </span> :
-                <span>{formatTime(0)}</span>
+                </div> :
+                <div>{formatTime(0)}</div>
               )
             }
           </div>
@@ -45,11 +45,11 @@ const TimersList = ({
             {
               currentMonth === month &&
               currentDate === date &&
-              <button onClick={setTimer} className="btn">
+              <button onClick={setTimer} className="btn btn-primary">
                 {timer.running ? 'Stop' : 'Start'}
               </button>
             }
-            <button onClick={deleteTimer} className="btn">
+            <button onClick={deleteTimer} className="btn btn-danger">
               delete
             </button>
           </div>
