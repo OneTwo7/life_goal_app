@@ -78,9 +78,11 @@ class TimerPage extends React.Component {
 
   onDateChange (event) {
     const d = event.target.value;
-    const month = d.slice(5, 7) - 1;
-    const date = +d.slice(8);
-    this.setState({ month, date });
+    if (d) {
+      const month = d.slice(5, 7) - 1;
+      const date = +d.slice(8);
+      this.setState({ month, date });
+    }
   }
 
   /* Form Methods */
@@ -130,9 +132,9 @@ class TimerPage extends React.Component {
 
   createRecord (timerId) {
     const { records } = this.props;
-    if (records[this.state.month] &&
-        records[this.state.month][this.state.date] &&
-        records[this.state.month][this.state.date][timerId]) {
+    if (records[timerId] &&
+        records[timerId][this.state.month] &&
+        records[timerId][this.state.month][this.state.date]) {
       return;
     }
     this.props.actions.createRecord({ timerId }, this.state.time);
@@ -140,7 +142,7 @@ class TimerPage extends React.Component {
 
   updateRecord (timerId) {
     const { records } = this.props;
-    const record = records[this.state.month][this.state.date][timerId];
+    const record = records[timerId][this.state.month][this.state.date];
     this.props.actions.updateRecord(record, this.state.time);
   }
 
@@ -158,27 +160,32 @@ class TimerPage extends React.Component {
       <div className="row">
         <div className="col-md-6 offset-md-3">
           <form id="date-picker-form">
-            <span>{moment(dateString).format('MMMM Do')}</span>
-            <input
-              value={dateString}
-              id="date-picker"
-              className="form-control"
-              type="date"
-              onChange={this.onDateChange}
-            />
+            <div>{moment(dateString).format('MMMM Do')}</div>
+            <div>
+              <input
+                value={dateString}
+                id="date-picker"
+                className="form-control"
+                type="date"
+                onChange={this.onDateChange}
+              />
+              </div>
           </form>
-          <section id="month-total">
-            <h2>Month's total</h2>
-            {
-              timers.map(timer => (
-                <div key={timer.id}>
-                  <span>{timer.text}</span>
-                  {" - "}
-                  <span>{this.formatTime(totals[this.state.month][timer.id])}</span>
-                </div>
-              ))
-            }
-          </section>
+          <div id="month-total" className="card bg-light">
+            <div className="card-header">Month's total</div>
+            <div className="card-body">
+              {
+                timers.map(timer => (
+                  <div key={timer.id} className="timer-total">
+                    <div>{timer.text}</div>
+                    <div>
+                      {this.formatTime(totals[timer.id][this.state.month])}
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
           <Form
             text={this.state.text}
             onChange={this.onInputChange}
@@ -212,31 +219,34 @@ class TimerPage extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  let totals = {};
-  for (let i = 0; i < 12; i++) {
-    totals[i] = {};
-    if (state.records[i]) {
-      for (let j = 1; j <= 31; j++) {
-        if (state.records[i][j]) {
-          for (let k = 0; k < state.timers.length; k++) {
-            if (state.records[i][j][state.timers[k].id]) {
-              if (totals[i][state.timers[k].id]) {
-                totals[i][state.timers[k].id] += state.records[i][j][state.timers[k].id].duration;
+  const totals = {};
+  const numOfTimers = state.timers.length;
+  let timerId;
+  for (let i = 0; i < numOfTimers; i++) {
+    timerId = state.timers[i].id;
+    totals[timerId] = {};
+    if (state.records[timerId]) {
+      for (let month = 0; month < 12; month++) {
+        if (state.records[timerId][month]) {
+          for (let date = 1; date <= 31; date++) {
+            if (state.records[timerId][month][date]) {
+              if (totals[timerId][month]) {
+                totals[timerId][month] += state.records[timerId][month][date].duration;
               } else {
-                totals[i][state.timers[k].id] = state.records[i][j][state.timers[k].id].duration;
+                totals[timerId][month] = state.records[timerId][month][date].duration;
               }
             }
           }
+        } else {
+          totals[timerId][month] = 0;
         }
       }
     } else {
-      for (let k = 0; k < state.timers.length; k++) {
-        totals[i][state.timers[k].id] = 0;
+      for (let month = 0; month < 12; month++) {
+        totals[timerId][month] = 0;
       }
     }
   }
-
-  console.log('totals', totals);
 
   return {
     timers: state.timers,

@@ -13,14 +13,14 @@ const recordReducer = (state = [], action) => {
   switch (action.type) {
     case types.CREATE_RECORD:
       records = Object.assign({}, state);
-      if (!records[record.month]) {
-        records[record.month] = {};
+      if (!records[record.timerId]) {
+        records[record.timerId] = {};
       }
-      if (!records[record.month][record.date]) {
-        records[record.month][record.date] = {};
+      if (!records[record.timerId][record.month]) {
+        records[record.timerId][record.month] = {};
       }
       record.duration = 0;
-      records[record.month][record.date][record.timerId] = record;
+      records[record.timerId][record.month][record.date] = record;
       storage.set('records', records);
       return records;
     case types.UPDATE_RECORD:
@@ -32,7 +32,12 @@ const recordReducer = (state = [], action) => {
         }
       }
       records = Object.assign({}, state);
-      records[record.month][record.date][record.timerId] = record;
+      records[record.timerId][record.month][record.date] = record;
+      storage.set('records', records);
+      return records;
+    case types.DELETE_TIMER:
+      records = Object.assign({}, state);
+      delete records[action.id];
       storage.set('records', records);
       return records;
     case types.ERASE_RECORDS:

@@ -23,7 +23,7 @@ const TimersList = ({
               <div>
                 {
                   formatTime(
-                    records[month][date][timer.id].duration +
+                    records[timer.id][month][date].duration +
                     Date.parse(time) - Date.parse(timer.start)
                   )
                 }
@@ -31,11 +31,11 @@ const TimersList = ({
             }
             {
               !timer.running && (
-                records[month] &&
-                records[month][date] &&
-                records[month][date][timer.id] ?
+                records[timer.id] &&
+                records[timer.id][month] &&
+                records[timer.id][month][date] ?
                 <div>
-                  {formatTime(records[month][date][timer.id].duration)}
+                  {formatTime(records[timer.id][month][date].duration)}
                 </div> :
                 <div>{formatTime(0)}</div>
               )
