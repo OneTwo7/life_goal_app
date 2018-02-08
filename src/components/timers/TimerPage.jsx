@@ -35,9 +35,15 @@ class TimerPage extends React.Component {
     this.createRecord = this.createRecord.bind(this);
     this.updateRecord = this.updateRecord.bind(this);
     this.eraseRecords = this.eraseRecords.bind(this);
+    this.reloadTimers = this.reloadTimers.bind(this);
   }
 
   /* Lifecycle Methods */
+
+  componentWillMount () {
+    const time = new Date();
+    this.reloadTimers(time);
+  }
 
   componentDidMount () {
     let time;
@@ -45,19 +51,7 @@ class TimerPage extends React.Component {
       time = new Date();
       // check whether it is midnight
       if (time.getHours() === 0 && time.getMinutes === 0) {
-        // check whether any timers are running
-        const { timers } = this.props;
-        timers.forEach((timer) => {
-          if (timer.running && (new Date(timer.start)).getDate() < time.getDate()) {
-            const id = timer.id;
-            // stop yesterday's timer
-            this.props.actions.stopTimer(id, time);
-            this.updateRecord(id);
-            // start today's one
-            this.props.actions.startTimer(id, time);
-            this.createRecord(id);
-          }
-        })
+        this.reloadTimers(time);
       }
       this.setState({ time });
     }, 1000);
@@ -144,6 +138,22 @@ class TimerPage extends React.Component {
 
   getTimerId (element) {
     return parseFloat(element.parentElement.id);
+  }
+
+  reloadTimers (time) {
+    // check whether any timer is running and if it was started yesterday
+    const { timers } = this.props;
+    timers.forEach(timer => {
+      if (timer.running && (new Date(timer.start)).getDate() < time.getDate()) {
+        const id = timer.id;
+        // stop yesterday's timer
+        this.props.actions.stopTimer(id, time);
+        this.updateRecord(id);
+        // start today's one
+        this.props.actions.startTimer(id, time);
+        this.createRecord(id);
+      }
+    });
   }
 
   /* Record Methods */
