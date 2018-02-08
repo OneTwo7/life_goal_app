@@ -100,7 +100,6 @@ input {
 .complete-btn {
   margin: auto 2rem auto 0;
   height: 2.5rem;
-  border-radius: .25rem;
 }
 
 #bottom-div {
@@ -115,27 +114,33 @@ input {
 }
 
 .timer-info {
-  width: 50%;
+  flex-grow: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.timer-info div {
-  display: inline-block;
-  width: 50%;
-}
-
-.timer-btns {
-  display: flex;
-  justify-content: flex-end;
-  width: 50%;
-}
-
-.timer-btns button {
-  margin-left: 1rem;
-  flex-grow: 1;
+.timer-title {
+  flex-grow: 6;
   flex-basis: 0;
+}
+
+.timer-progress {
+  flex-grow: 2;
+  flex-basis: 0;
+  margin-right: 1rem;
+}
+
+.timer-time {
+  flex-grow: 3;
+  flex-basis: 0;
+}
+
+.timer .btn-primary {
+  height: 2.5rem;
+  margin-right: 2rem;
+  margin-left: 2rem;
+  width: 5rem;
 }
 
 #date-picker-form {

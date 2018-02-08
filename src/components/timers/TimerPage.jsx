@@ -107,7 +107,7 @@ class TimerPage extends React.Component {
 
   setTimer (event) {
     const element = event.target;
-    const id = this.getTimerId(element.parentElement);
+    const id = this.getTimerId(element);
     const text = element.innerHTML;
 
     if (text === 'Start') {

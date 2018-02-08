@@ -17,10 +17,23 @@ const TimersList = ({
       timers.map(timer => (
         <div key={timer.id} id={timer.id} className="timer list-group-item">
           <div className="timer-info">
-            <div>{timer.text}</div>
+            <div className="timer-title">{timer.text}</div>
             {
               timer.running &&
-              <div>
+              <div className="progress timer-progress">
+                <div
+                  className="progress-bar progress-bar-striped progress-bar-animated"
+                  role="progressbar"
+                  aria-valuenow={time % 10000}
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  style={{ width: (Math.floor(time/1000%60)%11*10) + '%' }}>
+                </div>
+              </div>
+            }
+            {
+              timer.running &&
+              <div className="timer-time">
                 {
                   formatTime(
                     records[timer.id][month][date].duration +
@@ -30,29 +43,30 @@ const TimersList = ({
               </div>
             }
             {
+              !timer.running && <div className="timer-progress"></div>
+            }
+            {
               !timer.running && (
                 records[timer.id] &&
                 records[timer.id][month] &&
                 records[timer.id][month][date] ?
-                <div>
+                <div className="timer-time">
                   {formatTime(records[timer.id][month][date].duration)}
                 </div> :
-                <div>{formatTime(0)}</div>
+                <div className="timer-time">{formatTime(0)}</div>
               )
             }
           </div>
-          <div className="timer-btns">
-            {
-              currentMonth === month &&
-              currentDate === date &&
-              <button onClick={setTimer} className="btn btn-primary">
-                {timer.running ? 'Stop' : 'Start'}
-              </button>
-            }
-            <button onClick={deleteTimer} className="btn btn-danger">
-              delete
+          {
+            currentMonth === month &&
+            currentDate === date &&
+            <button onClick={setTimer} className="btn btn-primary">
+              {timer.running ? 'Stop' : 'Start'}
             </button>
-          </div>
+          }
+          <button onClick={deleteTimer} className="delete-btn">
+            &#x2715;
+          </button>
         </div>
       ))
     }
