@@ -5,7 +5,8 @@ import * as timerActions from '../../actions/timerActions';
 import * as recordActions from '../../actions/recordActions';
 import Form from '../common/Form';
 import TimersList from './TimersList';
-import moment from 'moment';
+import DatePicker from './DatePicker';
+import MonthTotal from './MonthTotal';
 
 class TimerPage extends React.Component {
   constructor (props) {
@@ -39,8 +40,26 @@ class TimerPage extends React.Component {
   /* Lifecycle Methods */
 
   componentDidMount () {
+    let time;
     this.interval = setInterval(() => {
-      this.setState({ time: new Date() })
+      time = new Date();
+      // check whether it is midnight
+      if (time.getHours() === 0 && time.getMinutes === 0) {
+        // check whether any timers are running
+        const { timers } = this.props;
+        timers.forEach((timer) => {
+          if (timer.running && (new Date(timer.start)).getDate() < time.getDate()) {
+            const id = timer.id;
+            // stop yesterday's timer
+            this.props.actions.stopTimer(id, time);
+            this.updateRecord(id);
+            // start today's one
+            this.props.actions.startTimer(id, time);
+            this.createRecord(id);
+          }
+        })
+      }
+      this.setState({ time });
     }, 1000);
   }
 
@@ -57,10 +76,9 @@ class TimerPage extends React.Component {
     if (time < 0) {
       time += 1000;
     }
-    const seconds = Math.floor(time/1000%60);
     const minutes = Math.floor(time/1000/60%60);
     const hours = Math.floor(time/1000/60/60);
-    return this.l0(hours) + ':' + this.l0(minutes) + ':' + this.l0(seconds);
+    return this.l0(hours) + ':' + this.l0(minutes);
   }
 
   l0 (num) {
@@ -154,38 +172,20 @@ class TimerPage extends React.Component {
 
   render () {
     const { timers, records, totals } = this.props;
-    const dateString = this.formatDate(this.state.month, this.state.date);
 
     return (
       <div className="row">
         <div className="col-md-6 offset-md-3">
-          <form id="date-picker-form">
-            <div>{moment(dateString).format('MMMM Do')}</div>
-            <div>
-              <input
-                value={dateString}
-                id="date-picker"
-                className="form-control"
-                type="date"
-                onChange={this.onDateChange}
-              />
-              </div>
-          </form>
-          <div id="month-total" className="card bg-light">
-            <div className="card-header">Month's total</div>
-            <div className="card-body">
-              {
-                timers.map(timer => (
-                  <div key={timer.id} className="timer-total">
-                    <div>{timer.text}</div>
-                    <div>
-                      {this.formatTime(totals[timer.id][this.state.month])}
-                    </div>
-                  </div>
-                ))
-              }
-            </div>
-          </div>
+          <DatePicker
+            dateString={this.formatDate(this.state.month, this.state.date)}
+            onDateChange={this.onDateChange}
+          />
+          <MonthTotal
+            timers={timers}
+            formatTime={this.formatTime}
+            totals={totals}
+            month={this.state.month}
+          />
           <Form
             text={this.state.text}
             onChange={this.onInputChange}
