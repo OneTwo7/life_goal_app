@@ -1,5 +1,6 @@
 export default {
   categories: [],
   goals: [],
-  timers: []
+  timers: [],
+  auth: null
 };

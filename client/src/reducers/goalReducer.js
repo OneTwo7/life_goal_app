@@ -1,7 +1,8 @@
 import * as types from '../constants';
 import * as storage from '../localStorage';
+import initialState from '../initialState';
 
-const goalReducer = (state = [], action) => {
+const goalReducer = (state = initialState.goals, action) => {
   let goals = null;
   state = storage.get('goals');
 

@@ -1,21 +1,33 @@
 {
   "name": "life_goal_app",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "moment": "^2.19.4",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "react-redux": "^5.0.6",
-    "react-router": "^4.2.0",
-    "react-router-dom": "^4.2.2",
-    "react-scripts": "1.0.17",
-    "redux": "^3.7.2"
+  "version": "0.0.1",
+  "description": "tasks and counts app",
+  "main": "index.js",
+  "engines": {
+    "node": "8.11.1",
+    "npm": "6.0.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "start": "node index.js",
+    "server": "nodemon index.js",
+    "client": "npm run start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false cd client && yarn install && yarn build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ttps://github.com/OneTwo7/life_goal_app"
+  },
+  "author": "onetwo7",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "concurrently": "^3.5.1",
+    "cookie-session": "^2.0.0-beta.3",
+    "express": "^4.16.3",
+    "mongoose": "^5.0.17",
+    "nodemon": "^1.17.3",
+    "passport": "^0.4.0",
+    "passport-google-oauth20": "^1.0.0"
   }
 }

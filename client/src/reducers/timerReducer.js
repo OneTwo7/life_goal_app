@@ -1,7 +1,8 @@
 import * as types from '../constants';
 import * as storage from '../localStorage';
+import initialState from '../initialState';
 
-const timerReducer = (state = [], action) => {
+const timerReducer = (state = initialState.timers, action) => {
   let timers = null;
   state = storage.get('timers');
 
