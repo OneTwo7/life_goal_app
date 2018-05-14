@@ -56,7 +56,7 @@ class GoalPage extends React.Component {
     return goals.map(goal => {
       return (
         <GoalListItem
-          key={goal.id}
+          key={goal._id}
           goal={goal}
           completed={completed}
           completeGoal={this.completeGoal}
@@ -67,13 +67,17 @@ class GoalPage extends React.Component {
   }
 
   getGoalId (element) {
-    return parseFloat(element.parentElement.id);
+    return element.parentElement.id;
   }
 
   render () {
-    const { current, past, currentProps, pastProps } = this.props;
+    const { auth, goals, current, past, currentProps, pastProps } = this.props;
     currentProps.renderGoals = this.renderGoals;
     pastProps.renderGoals = this.renderGoals;
+
+    if (!auth || !auth._id) {
+      return (<div />);
+    }
 
     return (
       <div className="row">
@@ -85,14 +89,17 @@ class GoalPage extends React.Component {
           />
           {current.length > 0 && <GoalsList {...currentProps} />}
           {past.length > 0 && <GoalsList {...pastProps} />}
-          <div id="bottom-div">
-            <button
-              className="btn btn-danger btn-large"
-              onClick={this.clearGoals}
-            >
-              Clear Goals
-            </button>
-          </div>
+          {
+            goals.length > 0 &&
+            <div id="bottom-div">
+              <button
+                className="btn btn-danger btn-large"
+                onClick={this.clearGoals}
+              >
+                Clear Goals
+              </button>
+            </div>
+          }
         </div>
       </div>
     );
@@ -100,23 +107,32 @@ class GoalPage extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  const goals = state.goals;
-  const current = goals.filter(goal => !goal.completed);
-  const past = goals.filter(goal => goal.completed);
-  const currentProps = {
-    goals: current,
-    completed: false,
-    id: 'goals-list',
-    header: 'Current Goals'
-  };
-  const pastProps = {
-    goals: past,
-    completed: true,
-    id: 'completed-list',
-    header: 'Completed'
-  };
+  const { auth } = state;
+  let goals = [];
+  let current, past;
+  let currentProps = {};
+  let pastProps = {};
+
+  if (auth && auth._id) {
+    goals = state.goals.filter(goal => goal.user === auth._id);
+    current = goals.filter(goal => !goal.completed);
+    past = goals.filter(goal => goal.completed);
+    currentProps = {
+      goals: current,
+      completed: false,
+      id: 'goals-list',
+      header: 'Current Goals'
+    };
+    pastProps = {
+      goals: past,
+      completed: true,
+      id: 'completed-list',
+      header: 'Completed'
+    };
+  }
 
   return {
+    auth,
     goals,
     current,
     past,

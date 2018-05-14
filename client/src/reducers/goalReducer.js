@@ -1,32 +1,25 @@
 import * as types from '../constants';
-import * as storage from '../localStorage';
 import initialState from '../initialState';
 
 const goalReducer = (state = initialState.goals, action) => {
   let goals = null;
-  state = storage.get('goals');
+  let idx = -1;
 
   switch (action.type) {
+    case types.LOAD_GOALS:
+      return action.goals;
     case types.CREATE_GOAL:
       goals = [...state, Object.assign({}, action.goal)];
-      storage.set('goals', goals);
       return goals;
     case types.COMPLETE_GOAL:
-      goals = state.map(goal => {
-        if (goal.id === action.id) {
-          goal.completed = true;
-          goal.date = action.date;
-        }
-        return goal;
-      });
-      storage.set('goals', goals);
+      goals = [...state];
+      idx = goals.findIndex(goal => goal._id === action.goal._id);
+      goals.splice(idx, 1, Object.assign({}, action.goal));
       return goals;
     case types.DELETE_GOAL:
       goals = state.filter(goal => goal.id !== action.id);
-      storage.set('goals', goals);
       return goals;
     case types.CLEAR_GOALS:
-      storage.remove('goals');
       return [];
     default:
       return state;

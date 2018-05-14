@@ -5,6 +5,7 @@ import { createStore, applyMiddleware } from 'redux';
 import reduxThunk from 'redux-thunk';
 import rootReducer from './reducers';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { loadGoals } from './actions/goalActions';
 import App from './components/App';
 import './index.css';
 
@@ -13,6 +14,8 @@ const store = createStore(
   {},
   applyMiddleware(reduxThunk)
 );
+
+store.dispatch(loadGoals());
 
 render(
   <Provider store={store}>

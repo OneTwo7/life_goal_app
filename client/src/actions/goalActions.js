@@ -1,35 +1,41 @@
+import axios from 'axios';
 import * as types from '../constants';
 
-export const createGoal = (goal) => {
-  goal.id = Math.random();
-  goal.date = new Date();
-  goal.completed = false;
+export const loadGoals = () => (async dispatch => {
+  const res = await axios.get('/api/goals');
+  dispatch({
+    type: types.LOAD_GOALS,
+    goals: res.data
+  });
+});
 
-  return {
+export const createGoal = (goal) => (async dispatch => {
+  const res = await axios.post('/api/goals', goal);
+  dispatch({
     type: types.CREATE_GOAL,
-    goal
-  };
-};
+    goal: res.data
+  });
+});
 
-export const completeGoal = (id) => {
-  const date = new Date();
-
-  return {
+export const completeGoal = (id) => (async dispatch => {
+  const res = await axios.put(`/api/goals/${id}`);
+  dispatch({
     type: types.COMPLETE_GOAL,
-    date,
-    id
-  };
-};
+    goal: res.data
+  });
+});
 
-export const deleteGoal = (id) => {
-  return {
+export const deleteGoal = (id) => (async dispatch => {
+  await axios.delete(`/api/goals/${id}`);
+  dispatch({
     type: types.DELETE_GOAL,
     id
-  };
-};
+  });
+});
 
-export const clearGoals = () => {
-  return {
+export const clearGoals = () => (async dispatch => {
+  await axios.delete('/api/goals');
+  dispatch({
     type: types.CLEAR_GOALS
-  };
-};
+  });
+});

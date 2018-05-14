@@ -3,6 +3,7 @@ import { withRouter, Route } from 'react-router';
 import { connect } from 'react-redux';
 import { fetchUser } from '../actions/authActions';
 import Header from './common/Header';
+import HomePage from './home/HomePage';
 import GoalPage from './goals/GoalPage';
 import TimerPage from './timers/TimerPage';
 
@@ -12,12 +13,13 @@ class App extends React.Component {
   }
 
   render () {
-    console.log('auth', this.props.auth);
+    const { auth } = this.props;
 
     return (
       <div className="container">
         <h1>Life Goal App</h1>
-        <Header auth={this.props.auth} />
+        <Header auth={auth} />
+        <HomePage auth={auth} />
         <Route exact path="/" component={GoalPage} />
         <Route path="/timers" component={TimerPage} />
         <hr />
@@ -30,7 +32,7 @@ class App extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  const auth = state.auth;
+  const { auth } = state;
   return {
     auth
   };

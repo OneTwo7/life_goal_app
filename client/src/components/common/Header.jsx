@@ -5,16 +5,24 @@ const renderContent = (auth) => {
   if (!auth) {
     return;
   } else if (!auth._id) {
-    return (<a key="3" href="/auth/google">Login with Google</a>);
+    return (
+      <div key="login" id="login">
+        <a href="/auth/google">Login with Google</a>
+      </div>
+    );
   } else {
-    return (<a key="4" href="/api/logout">Logout</a>);
+    return [
+      <div key="logout" id="login"><a href="/api/logout">Logout</a></div>,
+      <div key="links" id="links">
+        <NavLink exact to="/">Goals</NavLink>
+        <NavLink to="/timers">Timers</NavLink>
+      </div>
+    ];
   }
 };
 
 const Header = ({ auth }) => (
   <nav>
-    <NavLink key="1" exact to="/">Goals</NavLink>
-    <NavLink key="2" to="/timers">Timers</NavLink>
     {renderContent(auth)}
   </nav>
 );

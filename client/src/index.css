@@ -20,14 +20,23 @@ nav a:hover {
   text-decoration: none;
 }
 
-nav a:first-child {
+#links a:first-child {
   border-top-left-radius: .25rem;
   border-bottom-left-radius: .25rem;
 }
 
-nav a:last-child {
+#links a:last-child {
   border-top-right-radius: .25rem;
   border-bottom-right-radius: .25rem;
+}
+
+#login {
+  height: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+#login a {
+  border: none;
 }
 
 .active, .month.active, .day.active {
@@ -58,6 +67,10 @@ footer {
 }
 
 footer p {
+  text-align: center;
+}
+
+#intro {
   text-align: center;
 }
 

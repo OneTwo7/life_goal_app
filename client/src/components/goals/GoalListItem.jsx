@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment';
 
 const GoalListItem = ({ goal, completed, completeGoal, deleteGoal }) => (
-  <li id={goal.id} className="list-group-item">
+  <li id={goal._id} className="list-group-item">
     <div className="goal-description">
       <div>{goal.text}</div>
       <div>{moment(goal.date).format('MMM Do YYYY')}</div>
