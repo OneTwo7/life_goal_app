@@ -149,7 +149,7 @@ input {
   flex-basis: 0;
 }
 
-.timer .btn-primary {
+.timer .btn-primary, .timer-set {
   height: 2.5rem;
   margin-right: 2rem;
   margin-left: 2rem;

@@ -182,33 +182,34 @@ class TimerPage extends React.Component {
 
   render () {
     const { timers, records, totals } = this.props;
+    const { text, time, month, date, currentMonth, currentDate } = this.state;
+    const current = month === currentMonth && date === currentDate;
 
     return (
       <div className="row">
         <div className="col-md-6 offset-md-3">
           <DatePicker
-            dateString={this.formatDate(this.state.month, this.state.date)}
+            dateString={this.formatDate(month, date)}
             onDateChange={this.onDateChange}
           />
           <MonthTotal
             timers={timers}
             formatTime={this.formatTime}
             totals={totals}
-            month={this.state.month}
+            month={month}
           />
           <Form
-            text={this.state.text}
+            text={text}
             onChange={this.onInputChange}
             onClick={this.onButtonClick}
           />
           <TimersList
             timers={timers}
             records={records}
-            month={this.state.month}
-            date={this.state.date}
-            time={this.state.time}
-            currentMonth={this.state.currentMonth}
-            currentDate={this.state.currentDate}
+            month={month}
+            date={date}
+            time={time}
+            current={current}
             formatTime={this.formatTime}
             setTimer={this.setTimer}
             deleteTimer={this.deleteTimer}
