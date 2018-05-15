@@ -3,6 +3,7 @@ import { withRouter, Route } from 'react-router';
 import { connect } from 'react-redux';
 import { fetchUser } from '../actions/authActions';
 import { loadGoals } from '../actions/goalActions';
+import { loadTimers } from '../actions/timerActions';
 import Header from './common/Header';
 import HomePage from './home/HomePage';
 import GoalPage from './goals/GoalPage';
@@ -17,6 +18,7 @@ class App extends React.Component {
     if (nextProps.auth !== this.props.auth) {
       if (nextProps.auth._id) {
         this.props.loadGoals();
+        this.props.loadTimers();
       }
     }
   }
@@ -48,5 +50,5 @@ const mapStateToProps = (state) => {
 };
 
 export default withRouter(connect(mapStateToProps, {
-  fetchUser, loadGoals
+  fetchUser, loadGoals, loadTimers
 })(App));

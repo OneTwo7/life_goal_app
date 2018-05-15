@@ -9,6 +9,8 @@ const PORT = process.env.PORT || 3030;
 
 require('./models/User');
 require('./models/Goal');
+require('./models/Timer');
+require('./models/Record');
 
 mongoose.connect(keys.mongoURI).catch(err => {
   console.log('encountered error when connection to DB -', err);
@@ -28,6 +30,8 @@ app.use(passport.session());
 
 require('./routes/authRoutes')(app);
 require('./routes/goalRoutes')(app);
+require('./routes/timerRoutes')(app);
+require('./routes/recordRoutes')(app);
 
 if (process.env.NODE_ENV === 'production') {
   const path = require('path');

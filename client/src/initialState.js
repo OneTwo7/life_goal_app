@@ -1,5 +1,5 @@
 export default {
-  categories: [],
+  records: [],
   goals: [],
   timers: [],
   auth: null

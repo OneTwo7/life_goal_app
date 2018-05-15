@@ -1,38 +1,24 @@
 import * as types from '../constants';
-import * as storage from '../localStorage';
 import initialState from '../initialState';
 
 const timerReducer = (state = initialState.timers, action) => {
   let timers = null;
-  state = storage.get('timers');
+  let idx = -1;
 
   switch (action.type) {
+    case types.LOAD_TIMERS:
+      return action.timers;
     case types.CREATE_TIMER:
       timers = [...state, Object.assign({}, action.timer)];
-      storage.set('timers', timers);
       return timers;
     case types.START_TIMER:
-      timers = state.map(timer => {
-        if (timer._id === action.id) {
-          timer.start = action.time;
-          timer.running = true;
-        }
-        return timer;
-      });
-      storage.set('timers', timers);
-      return timers;
     case types.STOP_TIMER:
-      timers = state.map(timer => {
-        if (timer._id === action.id) {
-          timer.running = false;
-        }
-        return timer;
-      });
-      storage.set('timers', timers);
+      timers = [...state];
+      idx = timers.findIndex(timer => timer._id === action.timer._id);
+      timers.splice(idx, 1, Object.assign({}, action.timer));
       return timers;
     case types.DELETE_TIMER:
       timers = state.filter(timer => timer._id !== action.id);
-      storage.set('timers', timers);
       return timers;
     default:
       return state;

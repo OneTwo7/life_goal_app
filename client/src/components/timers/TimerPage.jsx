@@ -38,6 +38,12 @@ class TimerPage extends React.Component {
   /* Lifecycle Methods */
 
   componentWillReceiveProps (nextProps) {
+    if (nextProps.auth !== this.props.auth) {
+      if (nextProps.auth._id) {
+        this.props.actions.getRecords();
+      }
+    }
+
     if (nextProps.timers.length) {
       const timer = nextProps.timers.find(timer => timer.running);
       if (timer) {
@@ -65,11 +71,8 @@ class TimerPage extends React.Component {
   /* Time Format Methods */
 
   formatTime (time) {
-    if (isNaN(time)) {
+    if (isNaN(time) || time < 0) {
       return '00:00';
-    }
-    if (time < 0) {
-      time += 1000;
     }
     const minutes = Math.floor(time/1000/60%60);
     const hours = Math.floor(time/1000/60/60);
@@ -124,14 +127,13 @@ class TimerPage extends React.Component {
     const element = event.target;
     const id = this.getTimerId(element);
     const text = element.innerHTML;
-    const time = new Date();
     const { actions, startTime } = this.props;
 
     if (text === 'Start') {
-      actions.startTimer(id, time);
+      actions.startTimer(id);
       this.createRecord(id);
     } else {
-      actions.stopTimer(id, time, startTime);
+      actions.stopTimer(id, startTime);
     }
   }
 
@@ -141,7 +143,7 @@ class TimerPage extends React.Component {
   }
 
   getTimerId (element) {
-    return parseFloat(element.parentElement.id);
+    return element.parentElement.id;
   }
 
   reloadTimers () {
@@ -168,7 +170,7 @@ class TimerPage extends React.Component {
     if (records[timer]) {
       return;
     }
-    this.props.actions.createRecord({ timer }, this.state.time);
+    this.props.actions.createRecord({ timer });
   }
 
   eraseRecords () {
@@ -228,38 +230,36 @@ class TimerPage extends React.Component {
 
 const mapStateToProps = (state) => {
   const totals = {};
-  const { auth, records } = state;
+  const { auth, timers, records } = state;
   const time = new Date();
   const month = time.getMonth();
   const date = time.getDate();
-  let timers = [];
-
-  const filterRecords = (r => r.timer === timerId && r.month === month);
-  const findRecord = (r => (
-    r.timer === id && r.month === month && r.date === date
-  ));
-
-  if (auth && auth._id) {
-    timers = state.timers.filter(timer => timer.user === auth._id);
-  }
-
-  const numOfTimers = timers.length;
-  let timerId;
-  let mRecords = [];
-  for (let i = 0; i < numOfTimers; i++) {
-    timerId = timers[i]._id;
-    totals[timerId] = 0;
-    mRecords = records.filter(filterRecords);
-    if (mRecords.length) {
-      totals[timerId] = mRecords.map(r => r.duration).reduce((a, c) => a + c);
-    }
-  }
-
   const todayRecords = {};
-  let id;
-  for (let i = 0; i < numOfTimers; i++) {
-    id = timers[i]._id;
-    todayRecords[id] = records.find(findRecord) || 0;
+
+  if (records.length > 0) {
+
+    const filterRecords = (r => r.timer === timerId && r.month === month);
+    const findRecord = (r => (
+      r.timer === id && r.month === month && r.date === date
+    ));
+
+    const numOfTimers = timers.length;
+    let timerId;
+    let mRecords = [];
+    for (let i = 0; i < numOfTimers; i++) {
+      timerId = timers[i]._id;
+      totals[timerId] = 0;
+      mRecords = records.filter(filterRecords);
+      if (mRecords.length) {
+        totals[timerId] = mRecords.map(r => r.duration).reduce((a, c) => a + c);
+      }
+    }
+
+    let id;
+    for (let i = 0; i < numOfTimers; i++) {
+      id = timers[i]._id;
+      todayRecords[id] = records.find(findRecord) || null;
+    }
   }
 
   let startTime;
