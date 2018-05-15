@@ -5,6 +5,7 @@ import initialState from '../initialState';
 const recordReducer = (state = initialState.records, action) => {
   let records = null;
   let record = null;
+  let idx = -1;
   state = storage.get('records');
 
   if (action.record) {
@@ -13,36 +14,28 @@ const recordReducer = (state = initialState.records, action) => {
 
   switch (action.type) {
     case types.CREATE_RECORD:
-      records = Object.assign({}, state);
-      if (!records[record.timerId]) {
-        records[record.timerId] = {};
-      }
-      if (!records[record.timerId][record.month]) {
-        records[record.timerId][record.month] = {};
-      }
-      record.duration = 0;
-      records[record.timerId][record.month][record.date] = record;
+      records = [...state, record];
       storage.set('records', records);
       return records;
-    case types.UPDATE_RECORD:
-      const timers = storage.get('timers');
-      const length = timers.length;
-      for (let i = 0; i < length; i++) {
-        if (parseFloat(timers[i].id) === record.timerId) {
-          record.duration += Date.parse(timers[i].stop) - Date.parse(timers[i].start);
-        }
-      }
-      records = Object.assign({}, state);
-      records[record.timerId][record.month][record.date] = record;
+    case types.STOP_TIMER:
+      records = [...state];
+      record = records.find(record => (
+        record.timer === action.id &&
+        record.month === action.time.getMonth() &&
+        record.date === action.time.getDate()
+      ));
+      record.duration += action.time - Date.parse(action.start);
+      idx = records.findIndex(rec => rec._id === record._id);
+      records.splice(idx, 1, record);
       storage.set('records', records);
       return records;
     case types.DELETE_TIMER:
-      records = Object.assign({}, state);
-      delete records[action.id];
+      records = [...state];
+      records = records.filter(record => record._id !== action.id);
       storage.set('records', records);
       return records;
     case types.ERASE_RECORDS:
-      records = {};
+      records = [];
       storage.set('records', records);
       return records;
     default:

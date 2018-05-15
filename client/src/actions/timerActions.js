@@ -1,9 +1,8 @@
 import * as types from '../constants';
 
 export const createTimer = (timer) => {
-  timer.id = Math.random();
+  timer._id = Math.random();
   timer.start = null;
-  timer.stop = null;
   timer.running = false;
 
   return {
@@ -20,11 +19,12 @@ export const startTimer = (id, time) => {
   };
 };
 
-export const stopTimer = (id, time) => {
+export const stopTimer = (id, time, start) => {
   return {
     type: types.STOP_TIMER,
     id,
-    time
+    time,
+    start
   };
 };
 

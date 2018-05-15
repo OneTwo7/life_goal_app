@@ -15,11 +15,11 @@ const renderProgress = (running, current, time) => {
 };
 
 const renderTime = (timer, current, formatTime, month, date, time, records) => {
-  const { running, id, start } = timer;
+  const { _id, running, start } = timer;
   let timerTime = 0;
 
-  if (records[id] && records[id][month] && records[id][month][date]) {
-    timerTime = records[id][month][date].duration;
+  if (records[_id]) {
+    timerTime = records[_id].duration;
   }
 
   if (running && current) {
@@ -57,7 +57,7 @@ export default (props) => {
   const { timer, current, time, month, date, records, formatTime } = props;
 
   return (
-    <div id={timer.id} className="timer list-group-item">
+    <div id={timer._id} className="timer list-group-item">
       <div className="timer-info">
         <div className="timer-title">{timer.text}</div>
         {renderProgress(timer.running, current, time)}

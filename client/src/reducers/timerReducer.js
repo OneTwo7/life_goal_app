@@ -13,7 +13,7 @@ const timerReducer = (state = initialState.timers, action) => {
       return timers;
     case types.START_TIMER:
       timers = state.map(timer => {
-        if (timer.id === action.id) {
+        if (timer._id === action.id) {
           timer.start = action.time;
           timer.running = true;
         }
@@ -23,8 +23,7 @@ const timerReducer = (state = initialState.timers, action) => {
       return timers;
     case types.STOP_TIMER:
       timers = state.map(timer => {
-        if (timer.id === action.id) {
-          timer.stop = action.time;
+        if (timer._id === action.id) {
           timer.running = false;
         }
         return timer;
@@ -32,7 +31,7 @@ const timerReducer = (state = initialState.timers, action) => {
       storage.set('timers', timers);
       return timers;
     case types.DELETE_TIMER:
-      timers = state.filter(timer => timer.id !== action.id);
+      timers = state.filter(timer => timer._id !== action.id);
       storage.set('timers', timers);
       return timers;
     default:

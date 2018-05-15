@@ -12,17 +12,15 @@ class TimerPage extends React.Component {
   constructor (props) {
     super(props);
 
-    const currentTime = new Date();
-    const month = currentTime.getMonth();
-    const date = currentTime.getDate();
+    const { time, month, date } = props;
 
     this.state = {
-      text: '',
-      time: currentTime,
-      currentMonth: month,
-      currentDate: date,
+      time,
       month,
-      date
+      date,
+      text: '',
+      currentMonth: month,
+      currentDate: date
     }
 
     this.formatTime = this.formatTime.bind(this);
@@ -33,16 +31,19 @@ class TimerPage extends React.Component {
     this.formatDate = this.formatDate.bind(this);
     this.onDateChange = this.onDateChange.bind(this);
     this.createRecord = this.createRecord.bind(this);
-    this.updateRecord = this.updateRecord.bind(this);
     this.eraseRecords = this.eraseRecords.bind(this);
     this.reloadTimers = this.reloadTimers.bind(this);
   }
 
   /* Lifecycle Methods */
 
-  componentWillMount () {
-    const time = new Date();
-    this.reloadTimers(time);
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.timers.length) {
+      const timer = nextProps.timers.find(timer => timer.running);
+      if (timer) {
+        this.reloadTimers();
+      }
+    }
   }
 
   componentDidMount () {
@@ -50,8 +51,8 @@ class TimerPage extends React.Component {
     this.interval = setInterval(() => {
       time = new Date();
       // check whether it is midnight
-      if (time.getHours() === 0 && time.getMinutes === 0) {
-        this.reloadTimers(time);
+      if (time.getHours() === 0 && time.getMinutes() === 0) {
+        this.reloadTimers();
       }
       this.setState({ time });
     }, 1000);
@@ -65,7 +66,7 @@ class TimerPage extends React.Component {
 
   formatTime (time) {
     if (isNaN(time)) {
-      return '00:00:00';
+      return '00:00';
     }
     if (time < 0) {
       time += 1000;
@@ -111,7 +112,9 @@ class TimerPage extends React.Component {
       return;
     }
 
-    this.props.actions.createTimer({ text });
+    const user = this.props.auth._id;
+
+    this.props.actions.createTimer({ text, user });
     this.setState({ text: '' });
   }
 
@@ -121,13 +124,14 @@ class TimerPage extends React.Component {
     const element = event.target;
     const id = this.getTimerId(element);
     const text = element.innerHTML;
+    const time = new Date();
+    const { actions, startTime } = this.props;
 
     if (text === 'Start') {
-      this.props.actions.startTimer(id, this.state.time);
+      actions.startTimer(id, time);
       this.createRecord(id);
     } else {
-      this.props.actions.stopTimer(id, this.state.time);
-      this.updateRecord(id);
+      actions.stopTimer(id, time, startTime);
     }
   }
 
@@ -140,38 +144,31 @@ class TimerPage extends React.Component {
     return parseFloat(element.parentElement.id);
   }
 
-  reloadTimers (time) {
+  reloadTimers () {
+    const { timers, actions } = this.props;
+    const time = new Date();
+    const timer = timers.filter(timer => timer.running);
     // check whether any timer is running and if it was started yesterday
-    const { timers } = this.props;
-    timers.forEach(timer => {
-      if (timer.running && (new Date(timer.start)).getDate() < time.getDate()) {
-        const id = timer.id;
+    if (timer) {
+      if ((new Date(timer.start)).getDate() < time.getDate()) {
+        const id = timer._id;
         // stop yesterday's timer
-        this.props.actions.stopTimer(id, time);
-        this.updateRecord(id);
+        actions.stopTimer(id, time, timer.start);
         // start today's one
-        this.props.actions.startTimer(id, time);
+        actions.startTimer(id, time);
         this.createRecord(id);
       }
-    });
+    }
   }
 
   /* Record Methods */
 
-  createRecord (timerId) {
+  createRecord (timer) {
     const { records } = this.props;
-    if (records[timerId] &&
-        records[timerId][this.state.month] &&
-        records[timerId][this.state.month][this.state.date]) {
+    if (records[timer]) {
       return;
     }
-    this.props.actions.createRecord({ timerId }, this.state.time);
-  }
-
-  updateRecord (timerId) {
-    const { records } = this.props;
-    const record = records[timerId][this.state.month][this.state.date];
-    this.props.actions.updateRecord(record, this.state.time);
+    this.props.actions.createRecord({ timer }, this.state.time);
   }
 
   eraseRecords () {
@@ -231,38 +228,55 @@ class TimerPage extends React.Component {
 
 const mapStateToProps = (state) => {
   const totals = {};
-  const numOfTimers = state.timers.length;
+  const { auth, records } = state;
+  const time = new Date();
+  const month = time.getMonth();
+  const date = time.getDate();
+  let timers = [];
+
+  const filterRecords = (r => r.timer === timerId && r.month === month);
+  const findRecord = (r => (
+    r.timer === id && r.month === month && r.date === date
+  ));
+
+  if (auth && auth._id) {
+    timers = state.timers.filter(timer => timer.user === auth._id);
+  }
+
+  const numOfTimers = timers.length;
   let timerId;
+  let mRecords = [];
   for (let i = 0; i < numOfTimers; i++) {
-    timerId = state.timers[i].id;
-    totals[timerId] = {};
-    if (state.records[timerId]) {
-      for (let month = 0; month < 12; month++) {
-        if (state.records[timerId][month]) {
-          for (let date = 1; date <= 31; date++) {
-            if (state.records[timerId][month][date]) {
-              if (totals[timerId][month]) {
-                totals[timerId][month] += state.records[timerId][month][date].duration;
-              } else {
-                totals[timerId][month] = state.records[timerId][month][date].duration;
-              }
-            }
-          }
-        } else {
-          totals[timerId][month] = 0;
-        }
-      }
-    } else {
-      for (let month = 0; month < 12; month++) {
-        totals[timerId][month] = 0;
-      }
+    timerId = timers[i]._id;
+    totals[timerId] = 0;
+    mRecords = records.filter(filterRecords);
+    if (mRecords.length) {
+      totals[timerId] = mRecords.map(r => r.duration).reduce((a, c) => a + c);
     }
   }
 
+  const todayRecords = {};
+  let id;
+  for (let i = 0; i < numOfTimers; i++) {
+    id = timers[i]._id;
+    todayRecords[id] = records.find(findRecord) || 0;
+  }
+
+  let startTime;
+  let timer = timers.find(timer => timer.running);
+  if (timer) {
+    startTime = timer.start;
+  }
+
   return {
-    timers: state.timers,
-    records: state.records,
-    totals
+    auth,
+    timers,
+    totals,
+    time,
+    month,
+    date,
+    startTime,
+    records: todayRecords
   };
 };
 

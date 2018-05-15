@@ -2,6 +2,7 @@ import React from 'react';
 import { withRouter, Route } from 'react-router';
 import { connect } from 'react-redux';
 import { fetchUser } from '../actions/authActions';
+import { loadGoals } from '../actions/goalActions';
 import Header from './common/Header';
 import HomePage from './home/HomePage';
 import GoalPage from './goals/GoalPage';
@@ -10,6 +11,14 @@ import TimerPage from './timers/TimerPage';
 class App extends React.Component {
   componentDidMount () {
     this.props.fetchUser();
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.auth !== this.props.auth) {
+      if (nextProps.auth._id) {
+        this.props.loadGoals();
+      }
+    }
   }
 
   render () {
@@ -38,4 +47,6 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default withRouter(connect(mapStateToProps, { fetchUser })(App));
+export default withRouter(connect(mapStateToProps, {
+  fetchUser, loadGoals
+})(App));
