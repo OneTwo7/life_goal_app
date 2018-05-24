@@ -17,7 +17,7 @@ const goalReducer = (state = initialState.goals, action) => {
       goals.splice(idx, 1, Object.assign({}, action.goal));
       return goals;
     case types.DELETE_GOAL:
-      goals = state.filter(goal => goal.id !== action.id);
+      goals = state.filter(goal => goal._id !== action.id);
       return goals;
     case types.CLEAR_GOALS:
       return [];
