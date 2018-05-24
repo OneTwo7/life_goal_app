@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default ({ timers, formatTime, month, totals }) => {
+export default ({ timers, formatTime, totals, wastedTime }) => {
   if (timers.length === 0) {
     return (<div />);
   }
@@ -13,12 +13,14 @@ export default ({ timers, formatTime, month, totals }) => {
           timers.map(timer => (
             <div key={timer._id} className="timer-total">
               <div>{timer.text}</div>
-              <div>
-                {formatTime(totals[timer._id])}
-              </div>
+              <div>{formatTime(totals[timer._id])}</div>
             </div>
           ))
         }
+        <div key="wasted-time" className="timer-total">
+          <div>Time Wasted</div>
+          <div>{formatTime(wastedTime)}</div>
+        </div>
       </div>
     </div>
   );

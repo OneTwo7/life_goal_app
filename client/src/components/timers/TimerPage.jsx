@@ -180,7 +180,7 @@ class TimerPage extends React.Component {
   /* Render */
 
   render () {
-    const { timers, records, totals } = this.props;
+    const { timers, records, totals, wastedTime } = this.props;
     const { text, time, month, date, currentMonth, currentDate } = this.state;
     const current = month === currentMonth && date === currentDate;
 
@@ -195,7 +195,7 @@ class TimerPage extends React.Component {
             timers={timers}
             formatTime={this.formatTime}
             totals={totals}
-            month={month}
+            wastedTime={wastedTime}
           />
           <Form
             text={text}
@@ -230,11 +230,19 @@ class TimerPage extends React.Component {
 
 const mapStateToProps = (state) => {
   const totals = {};
+  const todayRecords = {};
   const { auth, timers, records } = state;
   const time = new Date();
   const month = time.getMonth();
   const date = time.getDate();
-  const todayRecords = {};
+
+  let workingDays = date - Math.floor(date / 7) - 1;
+
+  if (date % 7 > time.getDay()) {
+    workingDays--;
+  }
+
+  let wastedTime = workingDays * 16 * 60 * 60 * 1000;
 
   if (records.length > 0) {
 
@@ -251,8 +259,13 @@ const mapStateToProps = (state) => {
       totals[timerId] = 0;
       mRecords = records.filter(filterRecords);
       if (mRecords.length) {
-        totals[timerId] = mRecords.map(r => r.duration).reduce((a, c) => a + c);
+        totals[timerId] = mRecords.map(record => record.duration)
+        .reduce((total, current) => total + current);
       }
+    }
+
+    for (let key in totals) {
+      wastedTime -= Math.floor(totals[key]/1000/60)*1000*60;
     }
 
     let id;
@@ -276,6 +289,7 @@ const mapStateToProps = (state) => {
     month,
     date,
     startTime,
+    wastedTime,
     records: todayRecords
   };
 };
