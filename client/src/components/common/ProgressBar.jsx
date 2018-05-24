@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ProgressBar = ({ className, value }) => (
+export default ({ className, value }) => (
   <div className={'progress ' + className}>
     <div
       className="progress-bar progress-bar-striped progress-bar-animated"
@@ -12,5 +12,3 @@ const ProgressBar = ({ className, value }) => (
     </div>
   </div>
 );
-
-export default ProgressBar;

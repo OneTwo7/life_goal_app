@@ -21,10 +21,8 @@ const renderContent = (auth) => {
   }
 };
 
-const Header = ({ auth }) => (
+export default ({ auth }) => (
   <nav>
     {renderContent(auth)}
   </nav>
 );
-
-export default Header;

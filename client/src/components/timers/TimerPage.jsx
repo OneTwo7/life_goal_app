@@ -53,6 +53,10 @@ class TimerPage extends React.Component {
   }
 
   componentDidMount () {
+    const { auth } = this.props;
+    if (auth && auth._id) {
+      this.props.actions.getRecords();
+    }
     let time;
     this.interval = setInterval(() => {
       time = new Date();
