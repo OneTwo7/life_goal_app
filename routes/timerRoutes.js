@@ -41,7 +41,7 @@ module.exports = (app) => {
         timer.running = false;
 
         const time = new Date();
-        let record = await Record.findOne({
+        const record = await Record.findOne({
           timer: id, month: time.getMonth(), date: time.getDate()
         });
         record.duration += time - timer.start;

@@ -18,8 +18,12 @@ const renderTime = (timer, current, formatTime, month, date, time, records) => {
   const { _id, running, start } = timer;
   let timerTime = 0;
 
-  if (records[_id]) {
-    timerTime = records[_id].duration;
+  const record = records.find(record => (
+    record.timer === _id && record.month === month && record.date === date
+  ));
+
+  if (record) {
+    timerTime = record.duration;
   }
 
   if (running && current) {
