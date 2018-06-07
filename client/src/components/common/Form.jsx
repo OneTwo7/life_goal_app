@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default ({ text, onChange, onClick }) => (
+const Form = ({ text, onChange, onClick }) => (
   <form className="form-inline">
     <input
       type="text"
@@ -18,3 +18,5 @@ export default ({ text, onChange, onClick }) => (
     </button>
   </form>
 );
+
+export default Form;

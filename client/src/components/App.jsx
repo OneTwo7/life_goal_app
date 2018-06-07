@@ -19,6 +19,7 @@ class App extends React.Component {
       if (nextProps.auth._id) {
         this.props.loadGoals();
         this.props.loadTimers();
+        this.props.history.push('/goals');
       }
     }
   }
@@ -31,8 +32,13 @@ class App extends React.Component {
         <h1>Life Goal App</h1>
         <Header auth={auth} />
         <HomePage auth={auth} />
-        <Route exact path="/" component={GoalPage} />
-        <Route path="/timers" component={TimerPage} />
+        {
+          auth && auth._id &&
+          [
+            <Route key="goals-link" path="/goals" component={GoalPage} />,
+            <Route key="timers-link" path="/timers" component={TimerPage} />
+          ]
+        }
         <hr />
         <footer>
           <p>&copy; 2018 Ivan Antonov</p>

@@ -14,7 +14,7 @@ const renderContent = (auth) => {
     return [
       <div key="logout" id="login"><a href="/api/logout">Logout</a></div>,
       <div key="links" id="links">
-        <NavLink exact to="/">Goals</NavLink>
+        <NavLink to="/goals">Goals</NavLink>
         <NavLink to="/timers">Timers</NavLink>
       </div>
     ];
