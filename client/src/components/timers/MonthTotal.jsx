@@ -1,8 +1,8 @@
 import React from 'react';
 
-export default ({ timers, formatTime, totals, wastedTime }) => {
-  if (timers.length === 0) {
-    return (<div />);
+const MonthTotal = ({ timers, formatTime, totals, wastedTime }) => {
+  if (!timers.length) {
+    return null;
   }
 
   return (
@@ -25,3 +25,5 @@ export default ({ timers, formatTime, totals, wastedTime }) => {
     </div>
   );
 };
+
+export default MonthTotal;

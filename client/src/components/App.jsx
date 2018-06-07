@@ -17,9 +17,12 @@ class App extends React.Component {
   componentWillReceiveProps (nextProps) {
     if (nextProps.auth !== this.props.auth) {
       if (nextProps.auth._id) {
+        const { history } = this.props;
         this.props.loadGoals();
         this.props.loadTimers();
-        this.props.history.push('/goals');
+        if (history.location.pathname === '/') {
+          history.push('/goals');
+        }
       }
     }
   }

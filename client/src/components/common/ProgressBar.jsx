@@ -1,7 +1,7 @@
 import React from 'react';
 
-export default ({ className, value }) => (
-  <div className={'progress ' + className}>
+export default ({ value }) => (
+  <div className="progress">
     <div
       className="progress-bar progress-bar-striped progress-bar-animated"
       role="progressbar"
