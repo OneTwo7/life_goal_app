@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as timerActions from '../../actions/timerActions';
 import * as recordActions from '../../actions/recordActions';
-import { formatTime, getWasted, getTotals } from '../../utils/helpers';
+import * as helpers from '../../utils/helpers';
 
 class Timers extends React.Component {
   constructor (props) {
@@ -169,23 +169,24 @@ class Timers extends React.Component {
     const { timers } = this.props;
     const { time, month, date } = this.state;
     const current = month === time.getMonth() && date === time.getDate();
+    const { formatTime, formatDate } = helpers;
 
-    const children = React.Children.map(this.props.children, child => {
+    const children = React.Children.map(this.props.children, (child, idx) => {
       let childProps;
 
-      if (child.type.name === 'DatePicker') {
+      if (idx === 0) {
         childProps = {
-          dateString: time.toISOString().split('T')[0],
+          dateString: formatDate(time.getFullYear(), month, date),
           onDateChange: this.onDateChange
         };
-      } else if (child.type.name === 'MonthTotal') {
+      } else if (idx === 1) {
         childProps = {
           timers,
           formatTime,
           totals: this.props.totals,
           wastedTime: this.props.wastedTime
         };
-      } else if (child.type.name === 'Form') {
+      } else if (idx === 2) {
         childProps = {
           text: this.state.text,
           onChange: this.onInputChange,
@@ -221,6 +222,7 @@ class Timers extends React.Component {
 
 const mapStateToProps = (state) => {
   const { auth, timers, records } = state;
+  const { getTotals, getWasted } = helpers;
   const timer = timers.find(timer => timer.running);
   const time = new Date();
   const totals = getTotals(records, time, timers);

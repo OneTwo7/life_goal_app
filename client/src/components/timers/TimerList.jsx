@@ -11,8 +11,8 @@ const TimerList = (props) => {
 
   const children = [];
 
-  React.Children.forEach(props.children, child => {
-    if (child.type.name === 'TimerListItem') {
+  React.Children.forEach(props.children, (child, childIndex) => {
+    if (childIndex === 0) {
       timers.forEach((timer, index) => {
         children.push(React.cloneElement(child, {
           active,

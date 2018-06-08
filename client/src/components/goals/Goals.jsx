@@ -52,8 +52,8 @@ class Goals extends React.Component {
   }
 
   render () {
-    const children = React.Children.map(this.props.children, child => {
-      if (child.type.name === 'Form') {
+    const children = React.Children.map(this.props.children, (child, idx) => {
+      if (idx === 0) {
         return React.cloneElement(child, {
           text: this.state.text,
           onChange: this.onInputChange,

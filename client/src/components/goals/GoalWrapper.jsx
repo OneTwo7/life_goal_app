@@ -17,8 +17,8 @@ const GoalWrapper = (props) => {
     }
   });
 
-  const elements = React.Children.map(props.children, child => {
-    if (child.type.name === 'GoalList') {
+  const elements = React.Children.map(props.children, (child, idx) => {
+    if (idx === 0) {
       return [
         React.cloneElement(child, {
           goals: currentGoals,

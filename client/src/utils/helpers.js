@@ -11,6 +11,10 @@ export const formatTime = (time) => {
   return l0(hours) + ':' + l0(minutes);
 };
 
+export const formatDate = (year, month, date) => (
+  `${year}-${l0(month + 1)}-${l0(date)}`
+);
+
 export const getWasted = (time, totals) => {
   const date = time.getDate();
   const hours = time.getHours();

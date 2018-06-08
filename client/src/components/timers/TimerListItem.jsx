@@ -3,8 +3,8 @@ import React from 'react';
 const TimerListItem = (props) => {
   const { current, timer } = props;
 
-  const children = React.Children.map(props.children, child => {
-    if (child.type.name === 'TimerInfo') {
+  const children = React.Children.map(props.children, (child, idx) => {
+    if (idx === 0) {
       return React.cloneElement(child, {
         current,
         timer,
